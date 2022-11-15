@@ -2,25 +2,36 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 const mapStateToProps = (state) => {
-  return { counter: state.counter };
+  return { name: state.user.name };
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    onIncrement: () => {
+    // Can I use callback here? Even I use thunk?
+    // Or can I use side effect here?
+    fetchUser: () => {
       dispatch({
-        type: 'INCREMENT'
-      })
+        type: 'FETCH_START'
+      });
+      fetch('https://randomuser.me/api/')
+        .then(res => res.json())
+        .then(({ results }) => {
+          const [{ name }] = results;
+          dispatch({
+            type: 'FETCH_END',
+            name,
+          });
+        })
     },
   }
 }
 
 function App(props) {
-  const {onIncrement, counter} = props
+  const { fetchUser,  name} = props
   return (
     <div className="App">
-      <h1>{counter}</h1>
-      <button onClick={onIncrement}>Click</button>
+      <h1>First Name: {name}</h1>
+      <button onClick={fetchUser}>Click</button>
     </div>
   );
 }
